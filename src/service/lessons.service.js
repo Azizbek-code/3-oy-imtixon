@@ -1,5 +1,5 @@
-import { attendancemodel } from "../models/attendance.model.js";
 import { attendanceDetailmodel } from "../models/attendanceDetail.model.js";
+import { attendancemodel } from "../models/attendance.model.js";
 import { lessonModel } from "../models/lesson.model.js";
 
 class lessonService {
@@ -13,7 +13,7 @@ class lessonService {
         const createter = await this.model.create(data)
         const populateData = await this.model.aggregate([
             {
-                $match: { _id: (await createter)._id }
+                $match: { _id: createter._id }
             },
             {
                 $lookup: {
@@ -33,13 +33,29 @@ class lessonService {
         return populateData
     }
 
-    async getAll(id) {
-        const findAll = await this.model.find({group_id:id})
-        const find = await this.atmodel.find({ lesson_id: findAll._id });
-        return {
-            ...find,
-            ...findAll
+    async getAll(id, endDate, startDate) {
+        const find = await this.model.findOne({
+            group_id: id,
+            lesson_date: {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            }
+        });
+        const findAttendences = await this.atmodel.find({ lesson_id: find._id })
+        const countPresent = await this.atendModel.countDocuments({ attendance_id: findAttendences._id, status: 'present' })
+        const countlate = await this.atendModel.countDocuments({ attendance_id: findAttendences._id, status: 'late' })
+        const countabsent = await this.atendModel.countDocuments({ attendance_id: findAttendences._id, status: 'abent' })
+        const total = countPresent + countlate + countabsent
+        const data = {
+            find,
+            attendence: {
+                total: total,
+                present: countPresent,
+                absent: countabsent,
+                late: countlate
+            }
         }
+        return data
     }
 }
 

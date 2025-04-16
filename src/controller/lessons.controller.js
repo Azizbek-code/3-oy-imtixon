@@ -18,7 +18,9 @@ class lessonController {
     async getAll(req, res, next){
         try {
             const { groupId } = req.params
-            const data = await this.service.getAll(groupId)
+            const startDate = req.query.startDate;
+            const endDate = req.query.endDate;
+            const data = await this.service.getAll(groupId,endDate,startDate)
             res.status(200).json(data)
         } catch (error) {
             next(error)

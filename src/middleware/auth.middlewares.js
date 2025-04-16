@@ -9,6 +9,7 @@ const AuthMiddleware = async (req, res, next) => {
     const payloadData = jwtservice.verifyToken(token);
     req.id = payloadData.id;
     req.role = payloadData.role;
+    req.roleID = payloadData.id
     next();
   } catch (error) {
     next(error);

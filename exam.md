@@ -307,7 +307,7 @@ CREATE TABLE schedule (
     "address": "Toshkent, Yunusobod",
     "birthDate": "2000-05-15"
   }
-  ```
+  ``` 
 - Response (201):
   ```json
   {
